@@ -9,7 +9,7 @@
 
 ```bash
 git clone https://github.com/SalwaMK/Orkestrix
-cd Orkestrix-Front
+cd Orkestrix
 npm install
 npm run dev
 ```
@@ -27,15 +27,6 @@ The SQLite database (`orkestrix.db`) is created automatically on first run.
 npm run db:migrate   # apply schema migrations to orkestrix.db
 npm run db:studio    # open Drizzle Studio to browse the DB
 ```
-
----
-
-## Hosted version
-
-#[orkestrix.com](https://orkestrix.com) — click and go, no install needed.
-
-#Set `VITE_DB_MODE=neon` and `VITE_DATABASE_URL=<your-neon-url>` to switch to
-#Neon Postgres for the hosted deployment.
 
 ---
 
