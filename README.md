@@ -32,10 +32,10 @@ npm run db:studio    # open Drizzle Studio to browse the DB
 
 ## Hosted version
 
-[orkestrix.app](https://orkestrix.app) — click and go, no install needed.
+#[orkestrix.com](https://orkestrix.com) — click and go, no install needed.
 
-Set `VITE_DB_MODE=neon` and `VITE_DATABASE_URL=<your-neon-url>` to switch to
-Neon Postgres for the hosted deployment.
+#Set `VITE_DB_MODE=neon` and `VITE_DATABASE_URL=<your-neon-url>` to switch to
+#Neon Postgres for the hosted deployment.
 
 ---
 
