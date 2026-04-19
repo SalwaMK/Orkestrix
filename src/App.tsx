@@ -7,6 +7,7 @@ import { Dashboard } from "@/pages/Dashboard";
 import { AddTool } from "@/pages/AddTool";
 import { requestNotificationPermission } from "@/lib/notifications";
 import { seedDemoData } from "@/lib/seedData";
+import { Catalog } from "@/pages/Catalog";
 
 export default function App() {
   // Seed demo data on first load (dev only, no-op if tools already exist)
@@ -32,6 +33,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/add" element={<AddTool />} />
+            <Route path="/catalog" element={<Catalog />} />
           </Routes>
         </main>
       </div>

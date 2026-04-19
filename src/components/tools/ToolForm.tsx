@@ -77,9 +77,11 @@ const submitStyle: React.CSSProperties = {
 interface ToolFormProps {
   /** Called after a successful save so parent can navigate or react */
   onSuccess?: () => void
+  /** Pre-filled values from catalog navigation */
+  defaultValues?: Partial<ToolFormValues>
 }
 
-export function ToolForm({ onSuccess }: ToolFormProps) {
+export function ToolForm({ onSuccess, defaultValues }: ToolFormProps) {
   const { addTool } = useTools()
 
   const form = useForm<ToolFormValues>({
@@ -88,6 +90,7 @@ export function ToolForm({ onSuccess }: ToolFormProps) {
       toolName: '', cost: 0, billingCycle: 'monthly',
       renewalDate: '', category: 'other', status: 'active',
       isAiTool: false, notes: '',
+      ...defaultValues,
     },
   })
 
@@ -130,7 +133,7 @@ export function ToolForm({ onSuccess }: ToolFormProps) {
           <FormField control={form.control} name="billingCycle" render={({ field }) => (
             <FormItem>
               <FormLabel>Billing cycle</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                 <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
                 <SelectContent>
                   {BILLING_CYCLES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
@@ -155,7 +158,7 @@ export function ToolForm({ onSuccess }: ToolFormProps) {
           <FormField control={form.control} name="category" render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                 <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
                 <SelectContent>
                   {CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
