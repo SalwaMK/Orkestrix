@@ -14,6 +14,8 @@ import { RenewalTimeline } from "@/components/alerts/RenewalTimeline";
 import { SpendHistoryChart } from "@/components/charts/SpendHistoryChart";
 import { AiVsSaasChart } from "@/components/charts/AiVsSaasChart";
 import { CategoryBreakdownChart } from "@/components/charts/CategoryBreakdownChart";
+import { ExportButton } from "@/components/export/ExportButton";
+import { ExportSummaryCard } from "@/components/export/ExportSummaryCard";
 import type { Tool } from "@/types";
 
 // ── Stat card ──────────────────────────────────────────────────────────────
@@ -243,27 +245,32 @@ export function Dashboard() {
         }}
       >
         {/* ── Page header ── */}
-        <div style={{ marginBottom: 36 }}>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "clamp(1.6rem, 3vw, 2.4rem)",
-              fontWeight: 700,
-              letterSpacing: "-0.04em",
-              color: "#f3fbfb",
-            }}
-          >
-            Dashboard
-          </h1>
-          <p
-            style={{
-              margin: "6px 0 0",
-              color: "rgba(219,243,244,0.55)",
-              fontSize: "0.95rem",
-            }}
-          >
-            Your SaaS subscriptions and AI spend at a glance.
-          </p>
+        <div style={{ marginBottom: 36, display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
+          <div>
+            <h1
+              style={{
+                margin: 0,
+                fontSize: "clamp(1.6rem, 3vw, 2.4rem)",
+                fontWeight: 700,
+                letterSpacing: "-0.04em",
+                color: "#f3fbfb",
+              }}
+            >
+              Dashboard
+            </h1>
+            <p
+              style={{
+                margin: "6px 0 0",
+                color: "rgba(219,243,244,0.55)",
+                fontSize: "0.95rem",
+              }}
+            >
+              Your SaaS subscriptions and AI spend at a glance.
+            </p>
+          </div>
+          {!isEmpty && (
+            <ExportButton tools={tools} />
+          )}
         </div>
 
         {/* ── Stat cards ── */}
@@ -559,6 +566,9 @@ export function Dashboard() {
             </div>
           </section>
         )}
+
+        {/* ── Export summary card ── */}
+        <ExportSummaryCard tools={tools} />
       </div>
     </>
   );
