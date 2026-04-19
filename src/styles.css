@@ -726,7 +726,41 @@ a {
         padding: 22px;
     }
 
-    .btn {
-        width: 100%;
-    }
 }
+
+/* ── Premium UI Elements ────────────────────────────────────────────────── */
+.glass-panel {
+    border-radius: var(--radius-lg);
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%),
+        rgba(16, 24, 25, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(14px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-panel:hover {
+    transform: translateY(-4px);
+    border-color: rgba(34, 211, 238, 0.3);
+    box-shadow: 0 12px 32px -4px rgba(34, 211, 238, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.glow-text {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.35);
+}
+
+.glow-text-warning {
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.45);
+}
+
+.chart-tooltip-glass {
+    background: rgba(16, 24, 25, 0.85) !important;
+    border: 1px solid rgba(34, 211, 238, 0.25) !important;
+    border-radius: 12px !important;
+    color: #f3fbfb !important;
+    backdrop-filter: blur(8px) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(34, 211, 238, 0.15) !important;
+    padding: 10px 14px !important;
+}
+/* ───────────────────────────────────────────────────────────────────────── */

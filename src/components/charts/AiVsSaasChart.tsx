@@ -15,8 +15,8 @@ interface AiVsSaasChartProps {
 }
 
 const COLORS = {
-  ai: "#534AB7",
-  saas: "#0F766E",
+  ai: "#c084fc",
+  saas: "#22d3ee",
 };
 
 export function AiVsSaasChart({ tools }: AiVsSaasChartProps) {
@@ -76,13 +76,9 @@ export function AiVsSaasChart({ tools }: AiVsSaasChartProps) {
             ))}
           </Pie>
           <Tooltip
-            formatter={(v: number) => `$${(v / 100).toFixed(2)}`}
-            contentStyle={{
-              background: "rgba(16, 24, 25, 0.95)",
-              border: "1px solid rgba(34, 211, 238, 0.20)",
-              borderRadius: 8,
-              color: "#f3fbfb",
-            }}
+            formatter={(v: any) => `$${(Number(v) / 100).toFixed(2)}`}
+            contentStyle={{ display: "none" }}
+            wrapperClassName="chart-tooltip-glass"
           />
           <Legend
             verticalAlign="bottom"
@@ -112,6 +108,7 @@ export function AiVsSaasChart({ tools }: AiVsSaasChartProps) {
         }}
       >
         <div
+          className="glow-text"
           style={{
             fontSize: "1.5rem",
             fontWeight: 700,
