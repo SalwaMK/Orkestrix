@@ -30,19 +30,7 @@ interface StatCardProps {
 
 function StatCard({ icon, label, value, warn }: StatCardProps) {
   return (
-    <div
-      style={{
-        position: "relative",
-        borderRadius: 20,
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01)), rgba(16,24,25,0.80)",
-        border: warn
-          ? "1px solid rgba(251,191,36,0.30)"
-          : "1px solid rgba(255,255,255,0.07)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
-        padding: "22px 24px",
-      }}
-    >
+    <div className="glass-panel" style={{ padding: "22px 24px" }}>
       <div
         style={{
           display: "flex",
@@ -82,6 +70,7 @@ function StatCard({ icon, label, value, warn }: StatCardProps) {
         </span>
       </div>
       <p
+        className={warn ? "glow-text-warning" : "glow-text"}
         style={{
           margin: 0,
           fontSize: "2rem",
@@ -326,25 +315,16 @@ export function Dashboard() {
               </span>
             </div>
 
-            {/* Two-column chart grid */}
+            {/* Three-column chart grid */}
             <div
               style={{
                 display: "grid",
                 gap: 24,
                 marginBottom: 24,
               }}
-              className="grid-cols-1 md:grid-cols-2"
+              className="grid-cols-1 lg:grid-cols-3"
             >
-              <div
-                style={{
-                  padding: "20px",
-                  borderRadius: 20,
-                  background:
-                    "linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01)), rgba(16,24,25,0.80)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
-                }}
-              >
+              <div className="glass-panel" style={{ padding: "20px" }}>
                 <h3
                   style={{
                     margin: "0 0 16px",
@@ -358,16 +338,7 @@ export function Dashboard() {
                 <SpendHistoryChart tools={tools} />
               </div>
 
-              <div
-                style={{
-                  padding: "20px",
-                  borderRadius: 20,
-                  background:
-                    "linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01)), rgba(16,24,25,0.80)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
-                }}
-              >
+              <div className="glass-panel" style={{ padding: "20px" }}>
                 <h3
                   style={{
                     margin: "0 0 16px",
@@ -380,54 +351,21 @@ export function Dashboard() {
                 </h3>
                 <AiVsSaasChart tools={tools} />
               </div>
-            </div>
 
-            {/* Full-width category chart */}
-            <div
-              style={{
-                padding: "20px",
-                borderRadius: 20,
-                background:
-                  "linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01)), rgba(16,24,25,0.80)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
-              }}
-            >
-              <h3
-                style={{
-                  margin: "0 0 16px",
-                  fontSize: "0.95rem",
-                  fontWeight: 600,
-                  color: "#f3fbfb",
-                }}
-              >
-                Spend by category
-              </h3>
-              <CategoryBreakdownChart tools={tools} />
+              <div className="glass-panel" style={{ padding: "20px" }}>
+                <h3
+                  style={{
+                    margin: "0 0 16px",
+                    fontSize: "0.95rem",
+                    fontWeight: 600,
+                    color: "#f3fbfb",
+                  }}
+                >
+                  Spend by category
+                </h3>
+                <CategoryBreakdownChart tools={tools} />
+              </div>
             </div>
-          </section>
-        )}
-
-        {/* ── Renewals section ── */}
-        {!isEmpty && (
-          <section style={{ marginBottom: 48 }}>
-            <div style={{ marginBottom: 24 }}>
-              <span
-                style={{
-                  padding: "4px 12px",
-                  borderRadius: 999,
-                  background: "rgba(15,118,110,0.12)",
-                  border: "1px solid rgba(15,118,110,0.22)",
-                  color: "#b6f6ef",
-                  fontSize: "0.78rem",
-                  letterSpacing: "0.07em",
-                  textTransform: "uppercase",
-                }}
-              >
-                Upcoming renewals
-              </span>
-            </div>
-            <RenewalTimeline tools={tools} />
           </section>
         )}
 
@@ -551,7 +489,7 @@ export function Dashboard() {
 
         {/* ── SaaS Tools section ── */}
         {saasTools.length > 0 && (
-          <section>
+          <section style={{ marginBottom: 40 }}>
             <SectionHeader label="SaaS Tools" count={saasTools.length} />
             <div
               style={{
@@ -564,6 +502,29 @@ export function Dashboard() {
                 <ToolCard key={tool.id} tool={tool} onDelete={deleteTool} />
               ))}
             </div>
+          </section>
+        )}
+
+        {/* ── Renewals section ── */}
+        {!isEmpty && (
+          <section style={{ marginBottom: 48 }}>
+            <div style={{ marginBottom: 24 }}>
+              <span
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: 999,
+                  background: "rgba(15,118,110,0.12)",
+                  border: "1px solid rgba(15,118,110,0.22)",
+                  color: "#b6f6ef",
+                  fontSize: "0.78rem",
+                  letterSpacing: "0.07em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Upcoming renewals
+              </span>
+            </div>
+            <RenewalTimeline tools={tools} />
           </section>
         )}
 

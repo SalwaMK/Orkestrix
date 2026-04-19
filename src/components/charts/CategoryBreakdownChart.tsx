@@ -16,14 +16,14 @@ interface CategoryBreakdownChartProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  ai: "#534AB7",
-  development: "#0F766E",
-  design: "#D85A30",
-  productivity: "#378ADD",
-  marketing: "#D4537E",
-  communication: "#1D9E75",
-  finance: "#BA7517",
-  other: "#888780",
+  ai: "#c084fc",
+  development: "#22d3ee",
+  design: "#f472b6",
+  productivity: "#38bdf8",
+  marketing: "#fb7185",
+  communication: "#34d399",
+  finance: "#fbbf24",
+  other: "#94a3b8",
 };
 
 export function CategoryBreakdownChart({ tools }: CategoryBreakdownChartProps) {
@@ -46,15 +46,14 @@ export function CategoryBreakdownChart({ tools }: CategoryBreakdownChartProps) {
     );
   }
 
-  const chartHeight = Math.max(120, data.length * 40);
-
   return (
-    <ResponsiveContainer width="100%" height={chartHeight}>
-      <BarChart
-        data={data}
-        layout="vertical"
-        margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
-      >
+    <div style={{ width: "100%", height: 260 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data}
+          layout="vertical"
+          margin={{ top: 5, right: 20, left: 85, bottom: 5 }}
+        >
         <XAxis
           type="number"
           tickFormatter={(v) => `$${(v / 100).toFixed(0)}`}
@@ -66,13 +65,10 @@ export function CategoryBreakdownChart({ tools }: CategoryBreakdownChartProps) {
           tick={{ fill: "rgba(219, 243, 244, 0.65)", fontSize: 12 }}
         />
         <Tooltip
-          formatter={(v: number) => [`$${(v / 100).toFixed(2)}`, "Monthly spend"]}
-          contentStyle={{
-            background: "rgba(16, 24, 25, 0.95)",
-            border: "1px solid rgba(34, 211, 238, 0.20)",
-            borderRadius: 8,
-            color: "#f3fbfb",
-          }}
+          formatter={(v: any) => [`$${(Number(v) / 100).toFixed(2)}`, "Monthly spend"]}
+          contentStyle={{ display: "none" }}
+          cursor={{ fill: "rgba(34, 211, 238, 0.05)" }}
+          wrapperClassName="chart-tooltip-glass"
         />
         <Bar dataKey="total" radius={[0, 8, 8, 0]}>
           {data.map((entry, index) => (
@@ -84,5 +80,6 @@ export function CategoryBreakdownChart({ tools }: CategoryBreakdownChartProps) {
         </Bar>
       </BarChart>
     </ResponsiveContainer>
+    </div>
   );
 }

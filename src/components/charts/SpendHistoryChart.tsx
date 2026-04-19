@@ -55,13 +55,10 @@ export function SpendHistoryChart({ tools }: SpendHistoryChartProps) {
           tick={{ fill: "rgba(219, 243, 244, 0.65)", fontSize: 12 }}
         />
         <Tooltip
-          formatter={(v: number) => `$${(v / 100).toFixed(2)}`}
-          contentStyle={{
-            background: "rgba(16, 24, 25, 0.95)",
-            border: "1px solid rgba(34, 211, 238, 0.20)",
-            borderRadius: 8,
-            color: "#f3fbfb",
-          }}
+          formatter={(v: any) => `$${(Number(v) / 100).toFixed(2)}`}
+          contentStyle={{ display: "none" }}
+          cursor={{ stroke: "rgba(34, 211, 238, 0.4)", strokeWidth: 1, strokeDasharray: "3 3" }}
+          wrapperClassName="chart-tooltip-glass"
         />
         <Legend
           wrapperStyle={{
@@ -69,22 +66,32 @@ export function SpendHistoryChart({ tools }: SpendHistoryChartProps) {
             fontSize: 12,
           }}
         />
+        <defs>
+          <linearGradient id="colorSaaS" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.8} />
+            <stop offset="95%" stopColor="#22d3ee" stopOpacity={0.1} />
+          </linearGradient>
+          <linearGradient id="colorAI" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#c084fc" stopOpacity={0.8} />
+            <stop offset="95%" stopColor="#c084fc" stopOpacity={0.1} />
+          </linearGradient>
+        </defs>
         <Area
           type="monotone"
           dataKey="saasTotal"
           stackId="spend"
-          stroke="#0F766E"
-          fill="#0F766E"
-          fillOpacity={0.6}
+          stroke="#22d3ee"
+          strokeWidth={3}
+          fill="url(#colorSaaS)"
           name="SaaS"
         />
         <Area
           type="monotone"
           dataKey="aiTotal"
           stackId="spend"
-          stroke="#534AB7"
-          fill="#534AB7"
-          fillOpacity={0.6}
+          stroke="#c084fc"
+          strokeWidth={3}
+          fill="url(#colorAI)"
           name="AI tools"
         />
       </AreaChart>
