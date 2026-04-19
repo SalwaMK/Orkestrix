@@ -86,7 +86,8 @@ function RenewalRow({ tool }: { tool: ReturnType<typeof getUpcomingRenewals>[num
 
 export function Navbar() {
   const location = useLocation()
-  const isAddPage = location.pathname === '/add'
+  const isAddPage     = location.pathname === '/add'
+  const isCatalogPage = location.pathname === '/catalog'
 
   const { tools } = useTools()
   const [open, setOpen] = useState(false)
@@ -171,6 +172,27 @@ export function Navbar() {
 
       {/* ── Right side actions ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+
+        {/* Browse catalog link */}
+        {!isCatalogPage && (
+          <Link
+            to="/catalog"
+            style={{
+              fontSize:      '0.82rem',
+              fontWeight:    500,
+              color:         'rgba(219,243,244,0.62)',
+              textDecoration: 'none',
+              letterSpacing: '0.01em',
+              padding:       '6px 10px',
+              borderRadius:  8,
+              transition:    'color 0.15s ease',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#f3fbfb' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(219,243,244,0.62)' }}
+          >
+            Browse catalog
+          </Link>
+        )}
 
         {/* Bell button */}
         <div style={{ position: 'relative' }}>

@@ -1,9 +1,24 @@
 /** AddTool — page that hosts the ToolForm and redirects to dashboard on save */
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { ToolForm } from '@/components/tools/ToolForm'
+import type { ToolCategory, BillingCycle } from '@/types'
+
+/** Shape of pre-fill state sent from the catalog */
+interface PrefillState {
+  toolName?:    string
+  cost?:        number
+  billingCycle?: BillingCycle
+  category?:    ToolCategory
+  isAiTool?:    boolean
+}
 
 export function AddTool() {
-  const navigate = useNavigate()
+  const navigate  = useNavigate()
+  const location  = useLocation()
+  const prefill   = (location.state as { prefill?: PrefillState } | null)?.prefill
+
+  const [bannerDismissed, setBannerDismissed] = useState(false)
 
   const handleSuccess = () => {
     navigate('/')
@@ -17,6 +32,51 @@ export function AddTool() {
         padding: '40px 0 80px',
       }}
     >
+      {/* ── Pre-fill banner ── */}
+      {prefill && !bannerDismissed && (
+        <div
+          style={{
+            display:      'flex',
+            alignItems:   'center',
+            justifyContent: 'space-between',
+            gap:          12,
+            padding:      '12px 16px',
+            marginBottom: 20,
+            borderRadius: 12,
+            background:   'rgba(245,158,11,0.12)',
+            border:       '1px solid rgba(245,158,11,0.30)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b"
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span style={{ fontSize: '0.82rem', fontWeight: 500, color: '#fbbf24' }}>
+              Pre-filled from catalog — review and confirm
+            </span>
+          </div>
+          <button
+            onClick={() => setBannerDismissed(true)}
+            aria-label="Dismiss"
+            style={{
+              background: 'none',
+              border:     'none',
+              cursor:     'pointer',
+              color:      'rgba(251,191,36,0.60)',
+              fontSize:   '1.1rem',
+              lineHeight: 1,
+              padding:    '0 2px',
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* ── Page header ── */}
       <div style={{ marginBottom: 32 }}>
         <h1
@@ -52,7 +112,7 @@ export function AddTool() {
           boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
         }}
       >
-        <ToolForm onSuccess={handleSuccess} />
+        <ToolForm onSuccess={handleSuccess} defaultValues={prefill} />
       </div>
     </div>
   )
