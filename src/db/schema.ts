@@ -19,3 +19,31 @@ export const tools = sqliteTable('tools', {
 
 export type ToolRow = typeof tools.$inferSelect
 export type NewToolRow = typeof tools.$inferInsert
+
+export const aiProviders = sqliteTable('ai_providers', {
+  id:           text('id').primaryKey(),
+  userId:       text('user_id').notNull().default('local'),
+  provider:     text('provider').notNull(), // 'openai' | 'anthropic'
+  encryptedKey: text('encrypted_key').notNull(),
+  keyHint:      text('key_hint').notNull(),
+  isActive:     integer('is_active', { mode: 'boolean' }).default(true),
+  lastSyncedAt: text('last_synced_at'),
+  createdAt:    text('created_at').notNull(),
+})
+
+export const aiUsage = sqliteTable('ai_usage', {
+  id:           text('id').primaryKey(),
+  providerId:   text('provider_id').notNull().references(() => aiProviders.id),
+  userId:       text('user_id').notNull().default('local'),
+  date:         text('date').notNull(),
+  model:        text('model').notNull(),
+  inputTokens:  integer('input_tokens').notNull().default(0),
+  outputTokens: integer('output_tokens').notNull().default(0),
+  costCents:    integer('cost_cents').notNull().default(0),
+  createdAt:    text('created_at').notNull(),
+})
+
+export type AiProviderRow = typeof aiProviders.$inferSelect
+export type NewAiProviderRow = typeof aiProviders.$inferInsert
+export type AiUsageRow = typeof aiUsage.$inferSelect
+export type NewAiUsageRow = typeof aiUsage.$inferInsert
