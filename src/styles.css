@@ -661,6 +661,16 @@ a {
         order: 2;
     }
 
+    /* Landing page: hero code block stacks below headline */
+    .hero-code-block {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        margin-top: 40px;
+    }
+
     .feature-grid,
     .stats-grid,
     .architecture-layout,
