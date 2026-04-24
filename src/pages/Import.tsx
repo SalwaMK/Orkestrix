@@ -375,7 +375,7 @@ export function Import() {
 
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/app')}
                 style={{
                   padding:      '10px 24px',
                   borderRadius: 999,
