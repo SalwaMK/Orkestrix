@@ -21,7 +21,7 @@ export function AddTool() {
   const [bannerDismissed, setBannerDismissed] = useState(false)
 
   const handleSuccess = () => {
-    navigate('/')
+    navigate('/app')
   }
 
   return (

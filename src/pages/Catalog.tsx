@@ -43,7 +43,7 @@ export function Catalog() {
   })
 
   function handleAdd(tool: CatalogTool) {
-    navigate('/add', {
+    navigate('/app/add', {
       state: {
         prefill: {
           toolName:    tool.name,

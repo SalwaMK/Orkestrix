@@ -134,7 +134,7 @@ export function Navbar() {
     >
       {/* ── Brand mark ── */}
       <Link
-        to="/"
+        to="/app"
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -177,7 +177,7 @@ export function Navbar() {
         {/* Browse catalog link */}
         {!isCatalogPage && (
           <Link
-            to="/catalog"
+            to="/app/catalog"
             style={{
               fontSize:      '0.82rem',
               fontWeight:    500,
@@ -198,7 +198,7 @@ export function Navbar() {
         {/* Import CSV link */}
         {!isImportPage && (
           <Link
-            to="/import"
+            to="/app/import"
             style={{
               fontSize:      '0.82rem',
               fontWeight:    500,
@@ -406,7 +406,7 @@ export function Navbar() {
               ;(e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(34,211,238,0.20)'
             }}
           >
-            <Link to="/add" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <Link to="/app/add" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
               <Plus size={16} strokeWidth={2.5} />
               Add tool
             </Link>
@@ -424,7 +424,7 @@ export function Navbar() {
               letterSpacing: '0.04em',
             }}
           >
-            <Link to="/">← Back</Link>
+            <Link to="/app">← Back</Link>
           </Button>
         )}
       </div>

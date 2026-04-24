@@ -439,7 +439,7 @@ export function Dashboard() {
                 gap: 8,
               }}
             >
-              <Link to="/add">
+              <Link to="/app/add">
                 <Plus size={16} />
                 Add your first tool
               </Link>
