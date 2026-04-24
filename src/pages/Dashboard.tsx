@@ -5,6 +5,7 @@ import { Plus, TrendingUp, Wrench, Bot, Bell, Loader2 } from "lucide-react";
 import { useTools } from "@/hooks/useTools";
 import { ToolCard } from "@/components/tools/ToolCard";
 import { Button } from "@/components/ui/button";
+import { useAITracker } from "@/hooks/useAITracker";
 import {
   formatCurrency,
   normalizeToMonthly,
@@ -85,6 +86,84 @@ function StatCard({ icon, label, value, warn }: StatCardProps) {
   );
 }
 
+interface ClickableStatCardProps extends StatCardProps {
+  to: string;
+  tooltipText: string;
+}
+
+function ClickableStatCard({ icon, label, value, warn, to, tooltipText }: ClickableStatCardProps) {
+  return (
+    <Link to={to} style={{ textDecoration: 'none', display: 'block' }} title={tooltipText}>
+      <div 
+        className="glass-panel" 
+        style={{ 
+          padding: "22px 24px", 
+          transition: 'transform 0.15s, box-shadow 0.15s',
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.transform = 'translateY(-2px)'
+          e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(168,85,247,0.3) inset'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.transform = 'none'
+          e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 10,
+          }}
+        >
+          <span
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 10,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: warn
+                ? "rgba(251,191,36,0.12)"
+                : "rgba(168,85,247,0.16)",
+              border: warn
+                ? "1px solid rgba(251,191,36,0.25)"
+                : "1px solid rgba(168,85,247,0.30)",
+              color: warn ? "#fbbf24" : "#c084fc",
+            }}
+          >
+            {icon}
+          </span>
+          <span
+            style={{
+              fontSize: "0.78rem",
+              letterSpacing: "0.07em",
+              textTransform: "uppercase",
+              color: "rgba(219,243,244,0.55)",
+            }}
+          >
+            {label}
+          </span>
+        </div>
+        <p
+          className={warn ? "glow-text-warning" : "glow-text"}
+          style={{
+            margin: 0,
+            fontSize: "2rem",
+            fontWeight: 700,
+            lineHeight: 1,
+            color: warn ? "#fbbf24" : "#f3fbfb",
+          }}
+        >
+          {value}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
 // ── Section header ─────────────────────────────────────────────────────────
 
 function SectionHeader({ label, count }: { label: string; count: number }) {
@@ -130,6 +209,8 @@ function SectionHeader({ label, count }: { label: string; count: number }) {
 
 export function Dashboard() {
   const { tools, loading, error, deleteTool } = useTools();
+  const { totalThisMonth: aiTokenSpend, providers } = useAITracker();
+  const providersConnected = providers.length > 0;
 
   // ── Computed stats ───────────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -284,9 +365,26 @@ export function Dashboard() {
           />
           <StatCard
             icon={<Bot size={16} />}
-            label="AI spend / mo"
+            label="AI SaaS / mo"
             value={formatCurrency(stats.aiSpend)}
           />
+          {providersConnected ? (
+            <ClickableStatCard
+              to="/app/ai"
+              tooltipText="View AI Spend"
+              icon={<Bot size={16} />}
+              label="AI Token Spend"
+              value={formatCurrency(aiTokenSpend)}
+            />
+          ) : (
+            <ClickableStatCard
+              to="/app/ai"
+              tooltipText="Connect API keys in AI Spend"
+              icon={<Bot size={16} />}
+              label="AI Token Spend"
+              value="$—"
+            />
+          )}
           <StatCard
             icon={<Bell size={16} />}
             label="Renewing soon"

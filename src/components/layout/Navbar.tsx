@@ -7,6 +7,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Plus, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useTools } from '@/hooks/useTools'
+import { useAITracker } from '@/hooks/useAITracker'
 import {
   getUpcomingRenewals,
   daysUntilRenewal,
@@ -89,8 +90,10 @@ export function Navbar() {
   const isAddPage     = location.pathname === '/add'
   const isCatalogPage = location.pathname === '/catalog'
   const isImportPage  = location.pathname === '/import'
+  const isAiPage      = location.pathname === '/app/ai'
 
   const { tools } = useTools()
+  const { totalThisMonth } = useAITracker()
   const [open, setOpen] = useState(false)
   const popupRef = useRef<HTMLDivElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
@@ -192,6 +195,33 @@ export function Navbar() {
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(219,243,244,0.62)' }}
           >
             Browse catalog
+          </Link>
+        )}
+
+        {/* AI Spend link */}
+        {!isAiPage && (
+          <Link
+            to="/app/ai"
+            style={{
+              fontSize:      '0.82rem',
+              fontWeight:    500,
+              color:         'rgba(219,243,244,0.62)',
+              textDecoration: 'none',
+              letterSpacing: '0.01em',
+              padding:       '6px 10px',
+              borderRadius:  8,
+              transition:    'color 0.15s ease',
+              display:       'flex',
+              alignItems:    'center',
+              gap:           6,
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#f3fbfb' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(219,243,244,0.62)' }}
+          >
+            AI Spend
+            {totalThisMonth > 0 && (
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#a855f7', boxShadow: '0 0 6px rgba(168,85,247,0.6)' }} />
+            )}
           </Link>
         )}
 
