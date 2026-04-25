@@ -11,6 +11,7 @@ import { Catalog } from "@/pages/Catalog";
 import { Import } from "@/pages/Import";
 import { Landing } from "@/pages/Landing";
 import { AITracker } from "@/pages/AITracker";
+import { Gmail } from "@/pages/Gmail";
 
 export default function App() {
   // Seed demo data on first load (dev only, no-op if tools already exist)
@@ -62,6 +63,7 @@ function AppContent() {
           <Route path="/app/catalog" element={<Catalog />} />
           <Route path="/app/import" element={<Import />} />
           <Route path="/app/ai" element={<AITracker />} />
+          <Route path="/app/gmail" element={<Gmail />} />
         </Routes>
       </main>
     </div>

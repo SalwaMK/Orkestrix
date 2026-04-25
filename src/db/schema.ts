@@ -47,3 +47,34 @@ export type AiProviderRow = typeof aiProviders.$inferSelect
 export type NewAiProviderRow = typeof aiProviders.$inferInsert
 export type AiUsageRow = typeof aiUsage.$inferSelect
 export type NewAiUsageRow = typeof aiUsage.$inferInsert
+
+export const gmailConnections = sqliteTable('gmail_connections', {
+  id:              text('id').primaryKey(),
+  userId:          text('user_id').notNull().default('local'),
+  email:           text('email').notNull(),
+  accessToken:     text('access_token').notNull(),   // encrypted
+  refreshToken:    text('refresh_token').notNull(),  // encrypted
+  lastScannedAt:   text('last_scanned_at'),
+  totalFound:      integer('total_found').default(0),
+  createdAt:       text('created_at').notNull(),
+})
+
+export const discoveredSubs = sqliteTable('discovered_subs', {
+  id:              text('id').primaryKey(),
+  userId:          text('user_id').notNull().default('local'),
+  toolName:        text('tool_name').notNull(),
+  cost:            integer('cost').notNull(),         // cents
+  billingCycle:    text('billing_cycle').notNull(),
+  category:        text('category').notNull(),
+  isAiTool:        integer('is_ai_tool', { mode: 'boolean' }).default(false),
+  sourceEmail:     text('source_email').notNull(),   // email subject
+  confidence:      integer('confidence').notNull(),  // 0-100
+  status:          text('status').notNull().default('pending'),
+                   // 'pending' | 'confirmed' | 'dismissed'
+  createdAt:       text('created_at').notNull(),
+})
+
+export type GmailConnectionRow = typeof gmailConnections.$inferSelect
+export type NewGmailConnectionRow = typeof gmailConnections.$inferInsert
+export type DiscoveredSubRow = typeof discoveredSubs.$inferSelect
+export type NewDiscoveredSubRow = typeof discoveredSubs.$inferInsert
