@@ -8,6 +8,7 @@ import { Plus, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useTools } from '@/hooks/useTools'
 import { useAITracker } from '@/hooks/useAITracker'
+import { useGmail } from '@/hooks/useGmail'
 import {
   getUpcomingRenewals,
   daysUntilRenewal,
@@ -91,9 +92,11 @@ export function Navbar() {
   const isCatalogPage = location.pathname === '/catalog'
   const isImportPage  = location.pathname === '/import'
   const isAiPage      = location.pathname === '/app/ai'
+  const isGmailPage   = location.pathname === '/app/gmail'
 
   const { tools } = useTools()
   const { totalThisMonth } = useAITracker()
+  const { pendingSubs } = useGmail()
   const [open, setOpen] = useState(false)
   const popupRef = useRef<HTMLDivElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
@@ -221,6 +224,33 @@ export function Navbar() {
             AI Spend
             {totalThisMonth > 0 && (
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#a855f7', boxShadow: '0 0 6px rgba(168,85,247,0.6)' }} />
+            )}
+          </Link>
+        )}
+
+        {/* Inbox scan link */}
+        {!isGmailPage && (
+          <Link
+            to="/app/gmail"
+            style={{
+              fontSize:      '0.82rem',
+              fontWeight:    500,
+              color:         'rgba(219,243,244,0.62)',
+              textDecoration: 'none',
+              letterSpacing: '0.01em',
+              padding:       '6px 10px',
+              borderRadius:  8,
+              transition:    'color 0.15s ease',
+              display:       'flex',
+              alignItems:    'center',
+              gap:           6,
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#f3fbfb' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(219,243,244,0.62)' }}
+          >
+            Inbox scan
+            {pendingSubs.length > 0 && (
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fbbf24', boxShadow: '0 0 6px rgba(251,191,36,0.6)' }} />
             )}
           </Link>
         )}

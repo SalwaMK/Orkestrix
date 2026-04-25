@@ -1,12 +1,17 @@
 /** Express API server — SQLite CRUD routes for Orkestrix (local mode) */
+import dotenv from 'dotenv'
+dotenv.config({ path: '.env.local' })
+
 import express from 'express'
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { eq, desc } from 'drizzle-orm'
-import { tools, aiProviders, aiUsage } from '../src/db/schema'
+import { tools, aiProviders, aiUsage, gmailConnections, discoveredSubs } from '../src/db/schema'
 import type { NewToolRow } from '../src/db/schema'
-import { decryptKey } from '../src/lib/encryption'
+import { encryptKey, decryptKey } from '../src/lib/encryption'
 import { syncProviderUsage } from '../src/lib/aiSync'
+import { generateAuthUrl, authorizeCallback } from './gmailAuth'
+import { scanGmailInbox } from './gmailScanner'
 
 const app = express()
 app.use(express.json())
@@ -58,7 +63,36 @@ sqlite.exec(`
   )
 `)
 
-const db = drizzle(sqlite, { schema: { tools, aiProviders, aiUsage } })
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS gmail_connections (
+    id              TEXT PRIMARY KEY,
+    user_id         TEXT NOT NULL DEFAULT 'local',
+    email           TEXT NOT NULL,
+    access_token    TEXT NOT NULL,
+    refresh_token   TEXT NOT NULL,
+    last_scanned_at TEXT,
+    total_found     INTEGER DEFAULT 0,
+    created_at      TEXT NOT NULL
+  )
+`)
+
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS discovered_subs (
+    id              TEXT PRIMARY KEY,
+    user_id         TEXT NOT NULL DEFAULT 'local',
+    tool_name       TEXT NOT NULL,
+    cost            INTEGER NOT NULL,
+    billing_cycle   TEXT NOT NULL,
+    category        TEXT NOT NULL,
+    is_ai_tool      INTEGER DEFAULT 0,
+    source_email    TEXT NOT NULL,
+    confidence      INTEGER NOT NULL,
+    status          TEXT NOT NULL DEFAULT 'pending',
+    created_at      TEXT NOT NULL
+  )
+`)
+
+const db = drizzle(sqlite, { schema: { tools, aiProviders, aiUsage, gmailConnections, discoveredSubs } })
 
 // ── Tools routes ─────────────────────────────────────────────────────────────
 
@@ -286,6 +320,185 @@ app.post('/api/ai-providers/:id/sync', async (req, res) => {
     res.status(500).json({ error: String(err) })
   }
 })
+
+// ── Gmail OAuth & Scanner routes ─────────────────────────────────────────────
+
+/** GET /auth/gmail — initiate Google OAuth flow */
+app.get('/auth/gmail', (_req, res) => {
+  const url = generateAuthUrl()
+  res.redirect(url)
+})
+
+/** GET /auth/gmail/callback — OAuth callback from Google */
+app.get('/auth/gmail/callback', async (req, res) => {
+  try {
+    const code = req.query.code as string
+    if (!code) {
+      res.status(400).send('Missing authorization code')
+      return
+    }
+
+    const { accessToken, refreshToken, email } = await authorizeCallback(code)
+    
+    // Encrypt the tokens since they have read and offline access
+    const encryptedAccess = encryptKey(accessToken)
+    const encryptedRefresh = encryptKey(refreshToken)
+
+    const id = crypto.randomUUID()
+    
+    // Upsert into gmailConnections
+    sqlite.prepare('DELETE FROM gmail_connections WHERE user_id = ?').run('local')
+    sqlite.prepare(`
+      INSERT INTO gmail_connections (id, user_id, email, access_token, refresh_token, created_at)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(id, 'local', email, encryptedAccess, encryptedRefresh, new Date().toISOString())
+
+    // Start background scan async
+    const connection = {
+      id,
+      userId: 'local',
+      accessToken,
+      refreshToken,
+    }
+    
+    const dbApi = {
+      toolExists: (name: string) => {
+        const row = sqlite.prepare('SELECT 1 FROM tools WHERE user_id = ? AND LOWER(tool_name) = ?').get('local', name.toLowerCase())
+        return !!row
+      },
+      pendingExists: (name: string) => {
+        const row = sqlite.prepare('SELECT 1 FROM discovered_subs WHERE user_id = ? AND LOWER(tool_name) = ? AND status = ?').get('local', name.toLowerCase(), 'pending')
+        return !!row
+      },
+      insertDiscoveredSub: (sub: any) => {
+        sqlite.prepare(`
+          INSERT INTO discovered_subs (id, user_id, tool_name, cost, billing_cycle, category, is_ai_tool, source_email, confidence, status, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(sub.id, sub.userId, sub.toolName, sub.cost, sub.billingCycle, sub.category, sub.isAiTool ? 1 : 0, sub.sourceEmail, sub.confidence, sub.status, sub.createdAt)
+      },
+      updateScanStatus: (count: number) => {
+        sqlite.prepare('UPDATE gmail_connections SET last_scanned_at = ?, total_found = total_found + ? WHERE id = ?')
+          .run(new Date().toISOString(), count, id)
+      }
+    }
+
+    scanGmailInbox(connection, dbApi).catch(err => console.error('Background scanner error:', err))
+
+    // Redirect user to the page
+    res.redirect('http://localhost:5173/app/gmail')
+  } catch (err: any) {
+    console.error(err)
+    res.status(500).send('OAuth Failed: ' + err.message)
+  }
+})
+
+/** POST /auth/gmail/disconnect — clear connection */
+app.post('/auth/gmail/disconnect', (_req, res) => {
+  try {
+    sqlite.prepare('DELETE FROM gmail_connections WHERE user_id = ?').run('local')
+    sqlite.prepare('DELETE FROM discovered_subs WHERE user_id = ? AND status = ?').run('local', 'pending')
+    res.json({ success: true })
+  } catch (err) {
+    res.status(500).json({ error: String(err) })
+  }
+})
+
+/** POST /api/gmail/rescan — trigger a manual scan */
+app.post('/api/gmail/rescan', async (_req, res) => {
+  try {
+    const row = sqlite.prepare('SELECT * FROM gmail_connections WHERE user_id = ?').get('local') as any
+    if (!row) {
+      res.status(404).json({ error: 'Not connected to Gmail' })
+      return
+    }
+
+    const plaintextAccess = decryptKey(row.access_token)
+    const plaintextRefresh = decryptKey(row.refresh_token)
+
+    const connection = {
+      id: row.id,
+      userId: 'local',
+      accessToken: plaintextAccess,
+      refreshToken: plaintextRefresh,
+    }
+
+    const dbApi = {
+      toolExists: (name: string) => {
+        const r = sqlite.prepare('SELECT 1 FROM tools WHERE user_id = ? AND LOWER(tool_name) = ?').get('local', name.toLowerCase())
+        return !!r
+      },
+      pendingExists: (name: string) => {
+        const r = sqlite.prepare('SELECT 1 FROM discovered_subs WHERE user_id = ? AND LOWER(tool_name) = ? AND status = ?').get('local', name.toLowerCase(), 'pending')
+        return !!r
+      },
+      insertDiscoveredSub: (sub: any) => {
+        sqlite.prepare(`
+          INSERT INTO discovered_subs (id, user_id, tool_name, cost, billing_cycle, category, is_ai_tool, source_email, confidence, status, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(sub.id, sub.userId, sub.toolName, sub.cost, sub.billingCycle, sub.category, sub.isAiTool ? 1 : 0, sub.sourceEmail, sub.confidence, sub.status, sub.createdAt)
+      },
+      updateScanStatus: (count: number) => {
+        sqlite.prepare('UPDATE gmail_connections SET last_scanned_at = ?, total_found = total_found + ? WHERE id = ?')
+          .run(new Date().toISOString(), count, row.id)
+      }
+    }
+
+    const result = await scanGmailInbox(connection, dbApi)
+    res.json(result)
+  } catch (err) {
+    res.status(500).json({ error: String(err) })
+  }
+})
+
+// ── GET APIs for Gmail Hooks ─────────────────────────────────────────────────
+
+app.get('/api/gmail/connection', (_req, res) => {
+  try {
+    const row = sqlite.prepare('SELECT id, email, last_scanned_at, total_found FROM gmail_connections WHERE user_id = ?').get('local') as any
+    if (!row) {
+      res.json(null)
+      return
+    }
+    res.json({
+      id: row.id,
+      email: row.email,
+      lastScannedAt: row.last_scanned_at,
+      totalFound: row.total_found
+    })
+  } catch (err) {
+    res.status(500).json({ error: String(err) })
+  }
+})
+
+app.get('/api/gmail/pending', (_req, res) => {
+  try {
+    const rows = db.select().from(discoveredSubs).where(eq(discoveredSubs.status, 'pending')).all()
+    res.json(rows)
+  } catch (err) {
+    res.status(500).json({ error: String(err) })
+  }
+})
+
+app.post('/api/gmail/confirm/:id', (req, res) => {
+  try {
+    const { id } = req.params
+    sqlite.prepare("UPDATE discovered_subs SET status = 'confirmed' WHERE id = ?").run(id)
+    res.json({ success: true })
+  } catch (err) {
+    res.status(500).json({ error: String(err) })
+  }
+})
+
+app.post('/api/gmail/dismiss/:id', (req, res) => {
+  try {
+    const { id } = req.params
+    sqlite.prepare("UPDATE discovered_subs SET status = 'dismissed' WHERE id = ?").run(id)
+    res.json({ success: true })
+  } catch (err) {
+    res.status(500).json({ error: String(err) })
+  }
+})
+
 
 // ── Start ────────────────────────────────────────────────────────────────────
 const PORT = 3001
