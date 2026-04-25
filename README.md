@@ -39,6 +39,20 @@ Copy `.env.example` to `.env.local` and fill in the values:
 | `VITE_DB_MODE`     | `sqlite`   | `sqlite` (local) or `neon` (hosted)  |
 | `VITE_DATABASE_URL`| —          | Neon connection string (hosted only) |
 | `VITE_APP_NAME`    | `Orkestrix`| Application name                     |
+| `VITE_GMAIL_CLIENT_ID` | —      | Google OAuth Client ID for Gmail     |
+| `VITE_GMAIL_CLIENT_SECRET`| —   | Google OAuth Client Secret           |
+| `VITE_GMAIL_REDIRECT_URI`| —    | Usually `http://localhost:3001/auth/gmail/callback` |
+| `VITE_ANTHROPIC_API_KEY` | —    | Anthropic API key for AI Receipt Parsing |
+
+---
+
+## Features
+
+- **Local-first SQLite Tracking**: Track your recurring SaaS subscriptions with total cost metrics without your data ever leaving your machine.
+- **AI Spend Tracker**: Monitor real-time API token usage across OpenAI and Anthropic natively. Data is completely encrypted at rest via AES-256.
+- **Gmail Receipt Scanner**: Connect via Google OAuth to automatically parse billing receipts utilizing Claude Haiku. Safely adds newly discovered subscriptions to your stack.
+- **Reporting & Exports**: One-click downloadable CSV/PDF export generation and shareable social media cards.
+- **Modern UI**: Polished glassmorphism interfaces built beautifully with Framer Motion, Tailwind V3, and customized SVG assets.
 
 ---
 
@@ -97,10 +111,11 @@ server/
 
 ## Roadmap
 
-- [ ] Authentication (session 2)
-- [ ] Charts & spend trends
-- [ ] CSV export
-- [ ] Renewal email reminders
+- [x] Charts & spend trends (AI Tracker)
+- [x] Renewal email reminders
+- [x] CSV & PDF exports
+- [x] Auto-discovery via Gmail Receipt Parsing
+- [ ] Authentication (custom user models)
 - [ ] Team / multi-user support
 
 ---
