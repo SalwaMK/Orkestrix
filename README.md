@@ -5,6 +5,8 @@
 
 ---
 
+![Demo](./public/assets/demo.gif)
+
 ## Quick start (local)
 
 ```bash
