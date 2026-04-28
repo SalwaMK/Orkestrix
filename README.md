@@ -1,127 +1,141 @@
 # Orkestrix
-
 > Track your SaaS subscriptions and AI spend in one place.
 > Open source. Local-first. No Docker required.
 
 ---
 
-![Demo](./public/assets/demo.gif)
+![Demo](public/assets/demo.gif)
 
-## Quick start (local)
+---
 
-```bash
+## Quick start
+
 git clone https://github.com/SalwaMK/Orkestrix
 cd Orkestrix
 npm install
+npm run db:migrate
 npm run dev
-```
 
-Open [http://localhost:5173](http://localhost:5173)
-
-The API server starts automatically on port 3001 alongside the Vite dev server.
-The SQLite database (`orkestrix.db`) is created automatically on first run.
-
----
-
-## Optional: run migrations manually
-
-```bash
-npm run db:migrate   # apply schema migrations to orkestrix.db
-npm run db:studio    # open Drizzle Studio to browse the DB
-```
-
----
-
-## Environment variables
-
-Copy `.env.example` to `.env.local` and fill in the values:
-
-| Variable           | Default    | Description                          |
-|--------------------|------------|--------------------------------------|
-| `VITE_DB_MODE`     | `sqlite`   | `sqlite` (local) or `neon` (hosted)  |
-| `VITE_DATABASE_URL`| —          | Neon connection string (hosted only) |
-| `VITE_APP_NAME`    | `Orkestrix`| Application name                     |
-| `VITE_GMAIL_CLIENT_ID` | —      | Google OAuth Client ID for Gmail     |
-| `VITE_GMAIL_CLIENT_SECRET`| —   | Google OAuth Client Secret           |
-| `VITE_GMAIL_REDIRECT_URI`| —    | Usually `http://localhost:3001/auth/gmail/callback` |
-| `VITE_ANTHROPIC_API_KEY` | —    | Anthropic API key for AI Receipt Parsing |
+Open http://localhost:5173
+The API server starts automatically on port 3001.
+The SQLite database (orkestrix.db) is created on first run.
 
 ---
 
 ## Features
 
-- **Local-first SQLite Tracking**: Track your recurring SaaS subscriptions with total cost metrics without your data ever leaving your machine.
-- **AI Spend Tracker**: Monitor real-time API token usage across OpenAI and Anthropic natively. Data is completely encrypted at rest via AES-256.
-- **Gmail Receipt Scanner**: Connect via Google OAuth to automatically parse billing receipts utilizing Claude Haiku. Safely adds newly discovered subscriptions to your stack.
-- **Reporting & Exports**: One-click downloadable CSV/PDF export generation and shareable social media cards.
-- **Modern UI**: Polished glassmorphism interfaces built beautifully with Framer Motion, Tailwind V3, and customized SVG assets.
+- **Stack tracking** — catalog of 100+ tools, one-click add,
+  CSV import, manual entry
+- **AI token spend** — connect OpenAI and Anthropic API keys,
+  see real token costs by model by day, AES-256 encrypted at rest
+- **Gmail receipt scanner** — connect Gmail (read-only) to
+  auto-discover forgotten subscriptions using Claude Haiku
+- **Renewal alerts** — 30, 7, and 1 day browser notifications
+  before every renewal
+- **Export** — one-click CSV and PDF stack report with share button
 
 ---
 
-## Tech stack
+## Environment variables
 
-| Layer      | Technology                        |
-|------------|-----------------------------------|
-| Frontend   | React 19 · TypeScript · Vite 6    |
-| Styling    | Tailwind CSS v3 · shadcn/ui       |
-| Forms      | react-hook-form · Zod             |
-| Database   | SQLite (local) · Neon Postgres (hosted) |
-| ORM        | Drizzle ORM · Drizzle Kit         |
-| Server     | Express (local API server)        |
-| Animation  | Motion (framer-motion)            |
+Copy .env.example to .env.local and fill in the values:
+
+| Variable                  | Default    | Description                              |
+|---------------------------|------------|------------------------------------------|
+| VITE_DB_MODE              | sqlite     | sqlite (local) or neon (hosted)          |
+| VITE_DATABASE_URL         | —          | Neon connection string (hosted only)     |
+| VITE_APP_NAME             | Orkestrix  | Application name                         |
+| VITE_ENCRYPTION_SECRET    | —          | Secret for AES-256 key encryption        |
+| VITE_ANTHROPIC_API_KEY    | —          | Anthropic API key for Gmail parsing      |
+| VITE_GMAIL_CLIENT_ID      | —          | Google OAuth Client ID                   |
+| VITE_GMAIL_CLIENT_SECRET  | —          | Google OAuth Client Secret               |
+| VITE_GMAIL_REDIRECT_URI   | —          | http://localhost:3001/auth/gmail/callback|
 
 ---
 
 ## Project structure
 
-```
 src/
 ├── components/
-│   ├── ui/          ← shadcn/ui components
-│   ├── tools/       ← ToolForm, ToolCard
-│   └── layout/      ← Navbar
+│   ├── ui/           ← shadcn/ui components
+│   ├── tools/        ← ToolForm, ToolCard
+│   ├── charts/       ← SpendHistoryChart, CategoryBreakdownChart
+│   ├── alerts/       ← RenewalAlertBanner, RenewalTimeline
+│   ├── catalog/      ← CatalogToolCard
+│   ├── import/       ← DropZone, ColumnMapper, ImportPreviewTable
+│   ├── export/       ← ExportButton, ExportSummaryCard
+│   ├── ai/           ← AddProviderForm, UsageChart, ModelBreakdown
+│   ├── gmail/        ← DiscoveredSubCard
+│   └── layout/       ← Navbar
 ├── pages/
+│   ├── Landing.tsx
 │   ├── Dashboard.tsx
-│   └── AddTool.tsx
+│   ├── AddTool.tsx
+│   ├── Catalog.tsx
+│   ├── Import.tsx
+│   ├── AITracker.tsx
+│   └── Gmail.tsx
 ├── db/
-│   ├── schema.ts    ← Drizzle schema (SQLite)
-│   └── index.ts     ← dual-mode DB client
-├── hooks/
-│   └── useTools.ts  ← fetch-based CRUD hook
-├── lib/
-│   └── utils.ts     ← formatCurrency, cn, etc.
-└── types/
-    └── index.ts     ← shared TypeScript types
+│   ├── schema.ts     ← Drizzle schema
+│   └── index.ts      ← dual-mode DB client (SQLite / Neon)
+├── hooks/            ← useTools, useAITracker, useGmail
+├── lib/              ← utils, encryption, aiSync, csvParser, exportUtils
+├── data/             ← catalogTools, tokenPricing, seedData
+└── types/            ← shared TypeScript types
 
 server/
-└── index.ts         ← Express API server (local mode)
-```
+└── index.ts          ← Express API server (auth + sync proxy)
 
 ---
 
 ## Scripts
 
-| Command           | Description                              |
-|-------------------|------------------------------------------|
-| `npm run dev`     | Start Vite + API server concurrently     |
-| `npm run build`   | TypeScript check + Vite production build |
-| `npm run preview` | Preview the production build             |
-| `npm run db:migrate` | Apply Drizzle migrations to SQLite    |
-| `npm run db:studio`  | Open Drizzle Studio UI                |
+| Command             | Description                              |
+|---------------------|------------------------------------------|
+| npm run dev         | Start Vite + API server concurrently     |
+| npm run build       | TypeScript check + Vite production build |
+| npm run preview     | Preview the production build             |
+| npm run db:migrate  | Apply Drizzle migrations to SQLite       |
+| npm run db:studio   | Open Drizzle Studio UI                   |
+
+---
+
+## Tech stack
+
+| Layer      | Technology                              |
+|------------|-----------------------------------------|
+| Frontend   | React 19 · TypeScript · Vite 6          |
+| Styling    | Tailwind CSS v3 · shadcn/ui             |
+| Forms      | react-hook-form · Zod                   |
+| Database   | SQLite (local) · Neon Postgres (hosted) |
+| ORM        | Drizzle ORM · Drizzle Kit               |
+| Server     | Express                                 |
+| Charts     | Recharts                                |
+| Animation  | Framer Motion                           |
 
 ---
 
 ## Roadmap
 
-- [x] Charts & spend trends (AI Tracker)
-- [x] Renewal email reminders
-- [x] CSV & PDF exports
-- [x] Auto-discovery via Gmail Receipt Parsing
-- [ ] Authentication (custom user models)
+- [x] Stack tracking + tool catalog (100+ tools)
+- [x] Dashboard charts + renewal alerts
+- [x] CSV import + PDF/CSV export
+- [x] AI token spend tracker (OpenAI + Anthropic)
+- [x] Gmail receipt parsing
+- [ ] Authentication + hosted version
+- [ ] Renewal email reminders
 - [ ] Team / multi-user support
+- [ ] Mobile app
+
+---
+
+## Contributing
+
+See CONTRIBUTING.md
 
 ---
 
 ## License
 
-MIT © Orkestrix Contributors
+MIT License — Copyright (c) 2026 SalwaMK
+
