@@ -55,6 +55,7 @@ Copy .env.example to .env.local and fill in the values:
 
 ## Project structure
 
+```
 src/
 ├── components/
 │   ├── ui/           ← shadcn/ui components
@@ -85,6 +86,7 @@ src/
 
 server/
 └── index.ts          ← Express API server (auth + sync proxy)
+```
 
 ---
 
